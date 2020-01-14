@@ -22,9 +22,10 @@
  */
 
 require_once(__DIR__ . '/../../../config.php');
-require_once($CFG->libdir, '/adminlib.php');
+require_once($CFG->libdir . '/adminlib.php');
 
-admin_externalpage_setup('pushcommunications');
+admin_externalpage_setup('tool_pushcommunications_main', '', null, '', []);
+// admin_externalpage_setup does access validation checks for us
 
 $context = context_system::instance();
 

@@ -5,12 +5,18 @@
 	>
 	<TABLES>
 		<TABLE NAME="tool_pushcommunication" COMMENT="Push communication jobs">
+			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
 				<FIELD NAME="senderuserid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The userid of the sender of this push communication"/>
 				<FIELD NAME="payload" TYPE="text" LENGTH="4096" NOTNULL="true" SEQUENCE="false" COMMENT="Push communication content"/> 
 				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this entry was modified"/>
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+				<KEY NAME="senderuserid" TYPE="foreign" FIELDS="senderuserid" REFTABLE="user" REFFIELDS="id"/>
+			</KEYS>
 		</TABLE>
-		<TABLE NAME="tool_pushcommunication_instance" COMMENT="Individual attempts to send out a push communication job to a given device">
+		<TABLE NAME="tool_pushcommunication_inst" COMMENT="Individual attempts to send out a push communication job to a given device">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
 				<FIELD NAME="pushcommunicationid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The push communication job this instance is associated with"/>
@@ -19,6 +25,12 @@
 				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this entry was modified"/>
 				<FIELD NAME="status" TYPE="int" LENGTH="3" NOTNULL="true" SEQUENCE="false" COMMENT="Whether the notification was sent successfully"/>
 			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+				<KEY NAME="pushcommunicationid" TYPE="foreign" FIELDS="pushcommunicationid" REFTABLE="tool_pushcommunicatin" REFFIELDS="id"/>
+				<KEY NAME="recipientuserid" TYPE="foreign" FIELDS="recipientuserid" REFTABLE="user" REFFIELDS="id"/>
+				<KEY NAME="recipientuserdeviceid" TYPE="foreign" FIELDS="recipientuserdeviceid" REFTABLE="user_devices" REFFIELDS="id"/>
+			</KEYS>
 		</TABLE>
 	</TABLES>
 </XMLDB>
