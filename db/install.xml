@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="admin/tool/pushcommunications/db" VERSION="20191220" COMMENT="XMLDB file for Moodle admin/tool/pushcommunications"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
+	>
+	<TABLES>
+		<TABLE NAME="tool_pushcommunication" COMMENT="Push communication jobs">
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+				<FIELD NAME="senderuserid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The userid of the sender of this push communication"/>
+				<FIELD NAME="payload" TYPE="text" LENGTH="4096" NOTNULL="true" SEQUENCE="false" COMMENT="Push communication content"/> 
+				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this entry was modified"/>
+		</TABLE>
+		<TABLE NAME="tool_pushcommunication_instance" COMMENT="Individual attempts to send out a push communication job to a given device">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+				<FIELD NAME="pushcommunicationid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The push communication job this instance is associated with"/>
+				<FIELD NAME="recipientuserid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The userid of the recipient of this push communication"/>
+				<FIELD NAME="recipientuserdeviceid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The device to which we should push the communication"/>
+				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this entry was modified"/>
+				<FIELD NAME="status" TYPE="int" LENGTH="3" NOTNULL="true" SEQUENCE="false" COMMENT="Whether the notification was sent successfully"/>
+			</FIELDS>
+		</TABLE>
+	</TABLES>
+</XMLDB>
