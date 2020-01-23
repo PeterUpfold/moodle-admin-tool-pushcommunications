@@ -56,6 +56,10 @@ class index_page implements renderable, templatable {
 		$data = new stdClass();
 
 
+		// render the form and pass to Mustache
+		require_once( dirname(__FILE__) . '/../local/composepushcommunication_form.php');
+		$form = new \tool_pushcommunications\local\composepushcommunication_form(null, null, 'post');
+		$data->composepushcommunication_form = $form->render();
 
 		return $data;
 	}

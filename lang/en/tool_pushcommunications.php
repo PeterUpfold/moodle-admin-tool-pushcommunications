@@ -21,5 +21,11 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Push Communications';
-$string['pageheader'] = 'Push Communications';
+$string['pluginname']                       = 'Push Communications';
+$string['pageheader']                       = 'Push Communications';
+$string['tool/pushcommunications:send']     = 'Send push communication';
+
+$string['communication_content']            = 'Push Communication Content';
+$string['communication_content_maxlength']  = 'The push communication content must be 2048 characters or fewer.';
+$string['send']                             = 'Send';
+

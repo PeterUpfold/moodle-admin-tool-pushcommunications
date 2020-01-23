@@ -39,6 +39,8 @@ $output = $PAGE->get_renderer('tool_pushcommunications');
 echo $output->header();
 echo $output->heading($pagetitle);
 
+// handle the submission of the push communication send form
+
 // create renderable
 $renderable = new \tool_pushcommunications\output\index_page();
 
