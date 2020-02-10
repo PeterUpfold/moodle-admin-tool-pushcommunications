@@ -40,6 +40,12 @@ echo $output->header();
 echo $output->heading($pagetitle);
 
 // handle the submission of the push communication send form
+$form = new \tool_pushcommunications\local\composepushcommunication_form(null, null, 'post');
+if ($data = $form->get_data()) {
+	require_once(__DIR__ . '/classes/local/pushcommunication_sender.php');
+	$sender = new \tool_pushcommunications\local\pushcommunication_sender();
+	$sender->test_send_message($data);
+}
 
 // create renderable
 $renderable = new \tool_pushcommunications\output\index_page();
