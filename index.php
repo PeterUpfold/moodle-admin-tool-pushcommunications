@@ -58,10 +58,10 @@ if ($data = $form->get_data()) {
 	require_once(__DIR__ . '/classes/local/pushcommunication_sender.php');
 	$sender = new \tool_pushcommunications\local\pushcommunication_sender();
 	if ($sender->send_message($user, $data)) {
-		error_log('send message returend true');
+		\debugging('Successfully sent a push notification via AirNotifier', DEBUG_DEVELOPER);
 	}
 	else {
-		error_log('send message returend false');
+		throw new \Exception('The call to send the AirNotifier message did not succeed.');
 	}
 }
 
