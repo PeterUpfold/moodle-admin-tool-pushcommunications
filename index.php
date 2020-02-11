@@ -40,11 +40,29 @@ echo $output->header();
 echo $output->heading($pagetitle);
 
 // handle the submission of the push communication send form
-$form = new \tool_pushcommunications\local\composepushcommunication_form(null, null, 'post');
+require_once("$CFG->dirroot/admin/user/lib.php");
+$form = new \tool_pushcommunications\local\composepushcommunication_form(null, \get_selection_data(new \user_filtering()), 'post');
 if ($data = $form->get_data()) {
+
+
+	// look up user id in $data->target
+	//
+	require_once("$CFG->dirroot/user/lib.php");
+	$users = \user_get_users_by_id([$data->target]);
+	if (count($users) != 1) {
+		throw new \Exception('Unable to locate one user with the passed user id.');
+	}	
+
+	$user = array_values($users)[0]; // array is keyed by user id
+
 	require_once(__DIR__ . '/classes/local/pushcommunication_sender.php');
 	$sender = new \tool_pushcommunications\local\pushcommunication_sender();
-	$sender->test_send_message($data);
+	if ($sender->send_message($user, $data)) {
+		error_log('send message returend true');
+	}
+	else {
+		error_log('send message returend false');
+	}
 }
 
 // create renderable

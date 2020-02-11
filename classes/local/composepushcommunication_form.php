@@ -41,6 +41,22 @@ class composepushcommunication_form extends moodleform {
 		global $CFG;
 
 		$mform = $this->_form;
+
+		$ausers = $this->_customdata['ausers'];
+
+
+		$mform->addElement('select', 'target', get_string('user', 'tool_pushcommunications'), $ausers /*[ 10 =>  'test', 20 => 'test2']*/, []);
+		$mform->addRule(
+			'target',
+			get_string('user_required', 'tool_pushcommunications'),
+			'required',
+			'',
+			false,
+			true
+		);
+
+
+
 		$mform->addElement('textarea', 'communication_content', get_string('communication_content', 'tool_pushcommunications'), '');
 		$mform->setType('communication_content', PARAM_NOTAGS);
 		$mform->addRule(
@@ -52,6 +68,14 @@ class composepushcommunication_form extends moodleform {
 			false,
 			false
 		);
+		$mform->addRule(
+			'communication_content',
+			get_string('communication_content_required', 'tool_pushcommunications'),
+			'required',
+			'',
+			false,
+			true
+		);
 
 		$this->add_action_buttons(/* $cancel */ false, get_string('send', 'tool_pushcommunications'));
 	}
@@ -61,6 +85,9 @@ class composepushcommunication_form extends moodleform {
 	 */
 	public function validation($data, $files) {
 		//TODO how do we do this??
+		//
+
+
 		return array();
 	}
 

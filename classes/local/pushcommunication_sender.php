@@ -37,24 +37,32 @@ namespace tool_pushcommunications\local;
 class pushcommunication_sender {
 
 	/*
-	 * Scaffold to test sending message 
+	 * Send a push communication to a specified Moodle user.
+	 *
+	 * @param $user A Moodle user account
+	 * @param $data A stdClass with a member communication_content
+	 *
+	 * @return bool
 	 */
-	public function test_send_message($data) {
+	public function send_message($user, $data) {
 		global $CFG;
 
 		require_once($CFG->dirroot . '/message/output/airnotifier/message_output_airnotifier.php');
 
-		error_log('Invoked test_send_message');
+		error_log('Invoked send_message');
+
+
+		// check user is valid
+		if (!($user instanceof \stdClass)) {
+			throw new \Exception('user must be an instance of stdClass');
+		}
 
 		$eventdata = new \stdClass();
 
-		// TODO temporary send to specific user
-		$users = user_get_users_by_id([1903]);
-		$users = array_values($users); // rekey the array to 0
 
-		$eventdata->userto = $users[0]; 
+		$eventdata->userto = $user; 
 		if ($eventdata->userto == NULL) {
-			error_log('User to was null');
+			throw new \Exception('user to send message to was null');
 		}
 
 
@@ -62,6 +70,6 @@ class pushcommunication_sender {
 
 
 		$airnotifier_sender = new \message_output_airnotifier();
-		$airnotifier_sender->send_message($eventdata);
+		return $airnotifier_sender->send_message($eventdata);
 	}	
 };

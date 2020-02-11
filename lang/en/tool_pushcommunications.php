@@ -28,4 +28,6 @@ $string['tool/pushcommunications:send']     = 'Send push communication';
 $string['communication_content']            = 'Push Communication Content';
 $string['communication_content_maxlength']  = 'The push communication content must be 2048 characters or fewer.';
 $string['send']                             = 'Send';
-
+$string['user']                             = 'User';
+$string['communication_content_required']   = 'The push communication content is required.';
+$string['user_required']                    = 'A user to whom the communication should be sent is required.';
