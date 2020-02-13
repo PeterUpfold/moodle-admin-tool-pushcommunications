@@ -92,6 +92,23 @@ class composepushcommunication_form extends moodleform {
 			true
 		);
 
+
+		$mform->addElement('text', 'intent', get_string('intent', 'tool_pushcommunications'), []);
+		$mform->setType('intent', PARAM_LOCALURL);
+
+		// verify the intent is a URL that will be approved by the intent system in the app
+		$esc_root = str_replace('/', '\/', $CFG->wwwroot);
+		$esc_root = str_replace('.', '\.', $esc_root);
+		$mform->addRule(
+			'intent',
+			get_string('intent_internal_url', 'tool_pushcommunications'),
+			'regex',
+			"/^$esc_root/",
+			'client',
+			false,
+			false
+		);
+
 		$this->add_action_buttons(/* $cancel */ false, get_string('send', 'tool_pushcommunications'));
 	}
 
@@ -99,11 +116,14 @@ class composepushcommunication_form extends moodleform {
 	 * Return a result of validation.
 	 */
 	public function validation($data, $files) {
-		//TODO how do we do this??
-		//
 
+		$errors = parent::validation($data, $files);
 
-		return array();
+		if ((empty($data['target_cohort']) || (int)$data['target_cohort'] === 0) && empty($data['target'])) {
+			$errors[] = get_string('You must either select a cohort or individual user to send the communication.', 'tool_pushcommunications');
+		}
+
+		return $errors;
 	}
 
 };

@@ -37,3 +37,5 @@ $string['cohort']                           = 'All parents associated with the g
 $string['target_heading']                   = 'Recipient(s)';
 $string['content_heading']                  = 'Content';
 $string['no_cohort']                        = '-- do not send to cohort --';
+$string['intent']                           = 'URL within this Moodle site to navigate to';
+$string['intent_internal_url']              = 'The URL to navigate to must be a URL that is on this Moodle site.';

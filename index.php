@@ -47,6 +47,8 @@ $form_populate_data = \get_selection_data(new \user_filtering());
 $form_populate_data['cohorts'] = \cohort_get_all_cohorts(0, 100, '');
 
 $form = new \tool_pushcommunications\local\composepushcommunication_form(null, $form_populate_data, 'post');
+
+
 if ($data = $form->get_data()) {
 
 	$recipient_users = []; // these Moodle user IDs will receive the push communication
@@ -115,10 +117,33 @@ if ($data = $form->get_data()) {
 		$recipient_users[] = array_values($users)[0]; // array is keyed by user id
 	}
 
+	// de-duplicate recipient_users
+	$seen_recipient_user_ids = [];
+	$recipient_users_final = [];
+	foreach($recipient_users as $recipient_user) {
+		if (!in_array($recipient_user->id, $seen_recipient_user_ids)) {
+			$recipient_users_final[] = $recipient_user;
+			$seen_recipient_user_ids[] = $recipient_user->id;
+		}
+		else {
+			\debugging('Deduplicating user '. $recipient_user->id, DEBUG_DEVELOPER);
+		}
+	}
+
 	require_once(__DIR__ . '/classes/local/pushcommunication_sender.php');
 	$sender = new \tool_pushcommunications\local\pushcommunication_sender();
 
-	foreach($recipient_users as $user) {
+
+	// format the intent properly-- tvsmoodlemobile://?redirect=[original link]
+	if (!empty($data->intent)) {
+		// a bit of a hack -- determine the correct app URI scheme based on the last part of the android_app identifier from tool_mobile
+		$mobilesettings = \get_config('tool_mobile');
+		$appid = explode('.', $mobilesettings->androidappid);
+
+		$data->intent = $appid[count($appid)-1] . '://?redirect=' . $data->intent; 
+	}
+
+	foreach($recipient_users_final as $user) {
 		\debugging('Attempt to send to user ' . $user->id . ' ' . $user->username . ' by AirNotifier', DEBUG_DEVELOPER);
 		if ($sender->send_message($user, $data)) {
 			\debugging('Successfully sent a push notification via AirNotifier', DEBUG_DEVELOPER);
