@@ -41,27 +41,68 @@ echo $output->heading($pagetitle);
 
 // handle the submission of the push communication send form
 require_once("$CFG->dirroot/admin/user/lib.php");
-$form = new \tool_pushcommunications\local\composepushcommunication_form(null, \get_selection_data(new \user_filtering()), 'post');
+require_once("$CFG->dirroot/cohort/lib.php");
+
+$form_populate_data = \get_selection_data(new \user_filtering());
+$form_populate_data['cohorts'] = \cohort_get_all_cohorts(0, 100, '');
+
+$form = new \tool_pushcommunications\local\composepushcommunication_form(null, $form_populate_data, 'post');
 if ($data = $form->get_data()) {
 
+	$recipient_users = []; // these Moodle user IDs will receive the push communication
 
-	// look up user id in $data->target
+	// was a cohort send chosen?
 	//
-	require_once("$CFG->dirroot/user/lib.php");
-	$users = \user_get_users_by_id([$data->target]);
-	if (count($users) != 1) {
-		throw new \Exception('Unable to locate one user with the passed user id.');
-	}	
+	if ($data->target_cohort != 0) {
 
-	$user = array_values($users)[0]; // array is keyed by user id
+		// check cohort is valid
+
+		$valid_cohorts = [];
+		foreach ($form_populate_data['cohorts']['cohorts'] as $cohort) {
+			$valid_cohorts[] = $cohort->id;
+		}
+
+		if (!in_array($data->target_cohort, $valid_cohorts)) {
+			throw new \InvalidArgumentException('An invalid cohort ID was specified');
+		}
+
+		// look up 'magic' parent role ID
+		if (!property_exists($CFG, 'report_parentprogressview_parent_roleid')) {
+			throw new \Exception('The configuration settings for Parent Progress View could not be found. The report_parentprogressview module must be installed and the Parent Role ID configuration setting must be set in order to use cohort lookup.');
+		}
+		$roleid = (int)$CFG->report_parentprogressview_parent_roleid;
+		if ($roleid === 0) {
+			throw new \Exception('The configuration settings for Parent Progress View could not be evaluated correctly. The report_parentprogressview module must be installed and the Parent Role ID configuration setting must be set in order to use cohort lookup.');
+		}
+
+
+		// for each user in the target cohort, find the users which have parent role in the context of that user and add to recipient_users
+
+	}
+
+	// individual send
+	else {
+		// look up individual user id in $data->target
+		//
+		require_once("$CFG->dirroot/user/lib.php");
+		$users = \user_get_users_by_id([$data->target]);
+		if (count($users) != 1) {
+			throw new \Exception('Unable to locate one user with the passed user id.');
+		}	
+
+		$recipient_users[] = array_values($users)[0]; // array is keyed by user id
+	}
 
 	require_once(__DIR__ . '/classes/local/pushcommunication_sender.php');
 	$sender = new \tool_pushcommunications\local\pushcommunication_sender();
-	if ($sender->send_message($user, $data)) {
-		\debugging('Successfully sent a push notification via AirNotifier', DEBUG_DEVELOPER);
-	}
-	else {
-		throw new \Exception('The call to send the AirNotifier message did not succeed.');
+
+	foreach($recipient_users as $user) {
+		if ($sender->send_message($user, $data)) {
+			\debugging('Successfully sent a push notification via AirNotifier', DEBUG_DEVELOPER);
+		}
+		else {
+			throw new \Exception('The call to send the AirNotifier message did not succeed.');
+		}
 	}
 }
 

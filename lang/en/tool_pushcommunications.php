@@ -31,3 +31,9 @@ $string['send']                             = 'Send';
 $string['user']                             = 'User';
 $string['communication_content_required']   = 'The push communication content is required.';
 $string['user_required']                    = 'A user to whom the communication should be sent is required.';
+
+$string['or_group']                         = '...or send to all parents associated with pupils in a cohort...';
+$string['cohort']                           = 'All parents associated with the given cohort.';
+$string['target_heading']                   = 'Recipient(s)';
+$string['content_heading']                  = 'Content';
+$string['no_cohort']                        = '-- do not send to cohort --';

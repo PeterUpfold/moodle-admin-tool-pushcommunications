@@ -44,18 +44,33 @@ class composepushcommunication_form extends moodleform {
 
 		$ausers = $this->_customdata['ausers'];
 
+		// reformat the cohorts array of objects in a format that select will work with
+		$cohorts = [];
+		$cohorts[0] = get_string('no_cohort', 'tool_pushcommunications');
+		$cohorts_obj = $this->_customdata['cohorts']['cohorts'];
+		foreach($cohorts_obj as $cohort) {
+			$cohorts[intval($cohort->id)] = $cohort->name;
+		}
+
+		$mform->addElement('header', 'target_heading', get_string('target_heading', 'tool_pushcommunications'));
 
 		$mform->addElement('select', 'target', get_string('user', 'tool_pushcommunications'), $ausers /*[ 10 =>  'test', 20 => 'test2']*/, []);
-		$mform->addRule(
+		/*$mform->addRule(
 			'target',
 			get_string('user_required', 'tool_pushcommunications'),
 			'required',
 			'',
 			false,
 			true
-		);
+		);*/
 
 
+		$mform->addElement('static', 'or_group', get_string('or_group', 'tool_pushcommunications'));
+
+		$mform->addElement('select', 'target_cohort', get_string('cohort', 'tool_pushcommunications'), $cohorts, []);
+
+
+		$mform->addElement('header', 'content_heading', get_string('content_heading', 'tool_pushcommunications'));
 
 		$mform->addElement('textarea', 'communication_content', get_string('communication_content', 'tool_pushcommunications'), '');
 		$mform->setType('communication_content', PARAM_NOTAGS);

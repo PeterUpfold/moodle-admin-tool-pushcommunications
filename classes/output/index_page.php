@@ -56,11 +56,14 @@ class index_page implements renderable, templatable {
 		$data = new stdClass();
 
 		require_once("$CFG->dirroot/admin/user/lib.php");
+		require_once("$CFG->dirroot/cohort/lib.php");
 
 
 		// render the form and pass to Mustache
 		require_once( dirname(__FILE__) . '/../local/composepushcommunication_form.php');
-		$form = new \tool_pushcommunications\local\composepushcommunication_form(null, \get_selection_data(new \user_filtering()), 'post');
+		$form_populate_data = \get_selection_data(new \user_filtering());
+		$form_populate_data['cohorts'] = \cohort_get_all_cohorts(0, 100, '');
+		$form = new \tool_pushcommunications\local\composepushcommunication_form(null, $form_populate_data, 'post');
 		$data->composepushcommunication_form = $form->render();
 
 		return $data;
