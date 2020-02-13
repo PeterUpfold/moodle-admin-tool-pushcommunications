@@ -77,7 +77,29 @@ if ($data = $form->get_data()) {
 
 
 		// for each user in the target cohort, find the users which have parent role in the context of that user and add to recipient_users
+		require_once("$CFG->dirroot/cohort/locallib.php");
+		$selector = new \cohort_existing_selector('cohort-selector', [ 'cohortid' => $data->target_cohort, 'accesscontext' => $context ]);
 
+		$cohort_users = $selector->find_users('');
+
+		if (!is_array($cohort_users)) {
+			throw new \Exception('Failed to search the cohort for current users.');
+		}
+		if (!array_key_exists('Current users', $cohort_users)) {
+			throw new \Exception('Failed to identify any current users in the cohort.');
+		}
+
+		foreach($cohort_users['Current users'] as $pupil) {
+			// find parents with the roleid attached to this pupil and add them to recipients
+			$user_context = \context_user::instance($pupil->id);
+			$role_users = \get_role_users($roleid, $user_context, false, 'u.id, u.username, ' . get_all_user_name_fields(true, 'u'));
+
+			// for each parent
+			foreach($role_users as $parent) {
+				$recipient_users[] = $parent;
+				\debugging('Add parent ' . $parent->username . ' to pupil ' . $pupil->id, DEBUG_DEVELOPER);
+			}
+		}
 	}
 
 	// individual send
@@ -97,6 +119,7 @@ if ($data = $form->get_data()) {
 	$sender = new \tool_pushcommunications\local\pushcommunication_sender();
 
 	foreach($recipient_users as $user) {
+		\debugging('Attempt to send to user ' . $user->id . ' ' . $user->username . ' by AirNotifier', DEBUG_DEVELOPER);
 		if ($sender->send_message($user, $data)) {
 			\debugging('Successfully sent a push notification via AirNotifier', DEBUG_DEVELOPER);
 		}

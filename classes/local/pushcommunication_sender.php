@@ -39,7 +39,7 @@ class pushcommunication_sender {
 	/*
 	 * Send a push communication to a specified Moodle user.
 	 *
-	 * @param $user A Moodle user account
+	 * @param $user A Moodle user account as an stdClass
 	 * @param $data A stdClass with a member communication_content
 	 *
 	 * @return bool
