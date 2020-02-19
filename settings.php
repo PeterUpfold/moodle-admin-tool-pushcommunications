@@ -28,7 +28,7 @@ Parent Progress View, a module for Moodle to allow the viewing of documents and 
 defined('MOODLE_INTERNAL') || die();
 
 $ADMIN->add(
-	'messaging',
+	'mobileapp',
 	new admin_category(
 		'tool_pushcommunications',
 		get_string('pluginname', 'tool_pushcommunications')
