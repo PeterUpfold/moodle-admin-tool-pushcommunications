@@ -24,5 +24,5 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version           = 2020021301;
-$plugin->requires          = 2019110500;
+$plugin->requires          = 2018051708;
 $plugin->component         = 'tool_pushcommunications';
