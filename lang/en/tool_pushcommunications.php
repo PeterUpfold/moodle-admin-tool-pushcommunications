@@ -24,6 +24,7 @@
 $string['pluginname']                       = 'Push Communications';
 $string['pageheader']                       = 'Push Communications';
 $string['tool/pushcommunications:send']     = 'Send push communication';
+$string['pushcommunications:send']     = 'Send push communication';
 
 $string['communication_content']            = 'Push Communication Content';
 $string['communication_content_maxlength']  = 'The push communication content must be 2048 characters or fewer.';
