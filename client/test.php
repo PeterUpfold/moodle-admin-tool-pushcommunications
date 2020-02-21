@@ -22,9 +22,14 @@ $function = 'tool_pushcommunications_send_push_communication';
 
 $ch = curl_init();
 
-curl_setopt($ch, CURLOPT_URL, $domainname . '/webservice/rest/server.php?moodlewsrestformat=json&wsfunction=' . urlencode($function) . '&wstoken=' . urlencode($token) );
+curl_setopt($ch, CURLOPT_URL, $domainname . '/webservice/rest/server.php?moodlewsrestformat=json&wsfunction=' . urlencode($function) );
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query( [ 'email' => 'upfoldp@testvalley.hants.sch.uk', 'content' => 'API test' ] ));
+curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query( 
+	[
+		'email' => 'upfoldp@testvalley.hants.sch.uk',
+		'content' => 'API test',
+		'wstoken' => $token
+	] ));
 
 curl_exec($ch);
 
