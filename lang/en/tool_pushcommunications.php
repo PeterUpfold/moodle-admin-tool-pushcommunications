@@ -24,6 +24,7 @@
 $string['pluginname']                       = 'Push Communications';
 $string['pageheader']                       = 'Push Communications';
 $string['tool/pushcommunications:send']     = 'Send push communication';
+$string['pushcommunications:send']     = 'Send push communication';
 
 $string['communication_content']            = 'Push Communication Content';
 $string['communication_content_maxlength']  = 'The push communication content must be 2048 characters or fewer.';
@@ -37,5 +38,10 @@ $string['cohort']                           = 'All parents associated with the g
 $string['target_heading']                   = 'Recipient(s)';
 $string['content_heading']                  = 'Content';
 $string['no_cohort']                        = '-- do not send to cohort --';
-$string['intent']                           = 'URL within this Moodle site to navigate to';
+$string['intent']                           = 'Android only: URL within this Moodle site to navigate to';
 $string['intent_internal_url']              = 'The URL to navigate to must be a URL that is on this Moodle site.';
+
+$string['unable_to_find_user']              = 'Unable to find the target user by their email address.';
+$string['send_message_failed']              = 'The call to AirNotifier to send the message did not succeed.';
+$string['no_capability']                    = 'The web service token provided is not associated with a user who has the appropriate capability.';
+$string['sent_pushes']                      = 'Sent push notifications to {$a} users.';

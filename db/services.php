@@ -37,9 +37,9 @@ $services = [
 
 $functions = [
 	'tool_pushcommunications_send_push_communication' => [
-		'classname'          => 'tool_pushcommunication_external',
+		'classname'          => 'tool_pushcommunications_external',
 		'methodname'         => 'send_push_communication',
-		'classpath'          => 'tool/pushcommunications/externallib.php',
+		'classpath'          => 'admin/tool/pushcommunications/externallib.php',
 		'description'        => 'Send a push communication to a registered user\'s mobile device',
 		'type'               => 'write',
 		'ajax'               => true /* not sure about this */
