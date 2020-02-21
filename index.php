@@ -156,6 +156,8 @@ if ($data = $form->get_data()) {
 			throw new \Exception('The call to send the AirNotifier message did not succeed.');
 		}
 	}
+
+	$result = get_string('sent_pushes', 'tool_pushcommunications', $sent_pushes);
 }
 
 // create renderable

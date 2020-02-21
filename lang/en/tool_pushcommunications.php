@@ -44,3 +44,4 @@ $string['intent_internal_url']              = 'The URL to navigate to must be a 
 $string['unable_to_find_user']              = 'Unable to find the target user by their email address.';
 $string['send_message_failed']              = 'The call to AirNotifier to send the message did not succeed.';
 $string['no_capability']                    = 'The web service token provided is not associated with a user who has the appropriate capability.';
+$string['sent_pushes']                      = 'Sent push notifications to {$a} users.';
