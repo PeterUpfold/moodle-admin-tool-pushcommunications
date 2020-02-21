@@ -77,7 +77,7 @@ class tool_pushcommunications_external extends external_api {
 		 */
 		$select = $DB->sql_like('email', ':email', false, true, false, '|') .
 			" AND mnethostid = :mnethostid AND deleted=0 AND suspended=0";
-		$select_params = array('email' => $DB->sql_like_escape($params['user'], '|'), 'mnethostid' => $CFG->mnet_localhost_id);
+		$select_params = array('email' => $DB->sql_like_escape($params['email'], '|'), 'mnethostid' => $CFG->mnet_localhost_id);
 		$user = $DB->get_record_select('user', $select, $select_params, '*', IGNORE_MULTIPLE);
 
 		if (!$user) {
@@ -90,7 +90,7 @@ class tool_pushcommunications_external extends external_api {
 		// format content
 		$data = new \stdClass();
 		$data->communication_content = $params['content'];
-		$data->intent = '';
+		$data->intent = $CFG->wwwroot;
 
 
 		// call into pushcommunication_sender->send_message
