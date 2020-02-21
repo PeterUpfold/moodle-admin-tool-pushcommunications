@@ -20,6 +20,12 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once("$CFG->libdir/externallib.php");
 
+
+/********
+ * Set up a user for these purposes by following
+ * admin/settings.php?section=webservicesoverview
+ ********/
+
 class tool_pushcommunications_external extends external_api {
 	/**
 	 * Defines the parameters for the send_push_communication method.
@@ -28,10 +34,8 @@ class tool_pushcommunications_external extends external_api {
 	 */
 	public static function send_push_communication_parameters() {
 		return new external_function_parameters([
-			new external_single_structure([
-				'email'   => new external_value(PARAM_EMAIL, 'Email address of the target user to send the push communication to'),
-				'content' => new external_value(PARAM_TEXT, 'Content of the push communication. Max 2kbytes')
-			])
+			'email'   => new external_value(PARAM_EMAIL, 'Email address of the target user to send the push communication to'),
+			'content' => new external_value(PARAM_TEXT, 'Content of the push communication. Max 2kbytes')
 		]);
 	}
 
@@ -41,18 +45,66 @@ class tool_pushcommunications_external extends external_api {
 	 * @return external_single_structure
 	 */
 	public static function send_push_communication_returns() {
-		return new external_single_structure([ 'success' => new external_value(PARAM_BOOL, 'success or failure') ]);
+		return new external_single_structure([
+			'success' => new external_value(PARAM_BOOL, 'success or failure'),
+			'details' => new external_value(PARAM_TEXT, 'any further details -- i.e. error details')
+		]);
 	}
 
 	/**
 	 * Send a push communication to a specified user (by their email address).
 	 */
-	public static function send_push_communication($user) {
-		$params = self::validate_parameters(self::send_push_communication_parameters(), [ 'user' => $user ]);
+	public static function send_push_communication($email, $content) {
+		global $CFG, $DB;
+		require_once(__DIR__ . '/classes/local/pushcommunication_sender.php');
+		$sender = new \tool_pushcommunications\local\pushcommunication_sender();
+
+		$params = self::validate_parameters(self::send_push_communication_parameters(), [ 'email' => $email, 'content' => $content ]);
+		self::validate_context(context_system::instance()); // performs permissions checks
+
+		// check capability
+		if (!has_capability('tool/pushcommunications:send', context_system::instance())) {
+			return [
+				'success' => false,
+				'details' => get_string('no_capability', 'tool_pushcommunication')
+			];
+		}
 
 		// look up user from email address
-		//
-		// call into pushcommunication_sender->send_message
+		/*  note that login/lib.php:100 explains that the email address may not be unique. As that code does,
+		 *  we will naively ignore multiple, which I guess takes the first valid result and will send to that
+		 *  user only.
+		 */
+		$select = $DB->sql_like('email', ':email', false, true, false, '|') .
+			" AND mnethostid = :mnethostid AND deleted=0 AND suspended=0";
+		$select_params = array('email' => $DB->sql_like_escape($params['user'], '|'), 'mnethostid' => $CFG->mnet_localhost_id);
+		$user = $DB->get_record_select('user', $select, $select_params, '*', IGNORE_MULTIPLE);
 
+		if (!$user) {
+			return [
+				'success' => false,
+				'details' => get_string('unable_to_find_user', 'tool_pushcommunications')
+			];	
+		}
+
+		// format content
+		$data = new \stdClass();
+		$data->communication_content = $params['content'];
+		$data->intent = '';
+
+
+		// call into pushcommunication_sender->send_message
+		if ($sender->send_message($user, $data)) {
+			return [
+				'success' => true,
+				'details' => ''
+			];
+		}
+		else {
+			return [
+				'success' => false,
+				'details' => get_string('send_message_failed', 'tool_pushcommunications')
+			];
+		}
 	}
 };

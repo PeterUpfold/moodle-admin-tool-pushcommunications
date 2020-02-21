@@ -48,6 +48,7 @@ $form_populate_data['cohorts'] = \cohort_get_all_cohorts(0, 100, '');
 
 $form = new \tool_pushcommunications\local\composepushcommunication_form(null, $form_populate_data, 'post');
 
+$result = '';
 
 if ($data = $form->get_data()) {
 
@@ -143,10 +144,13 @@ if ($data = $form->get_data()) {
 		$data->intent = $appid[count($appid)-1] . '://?redirect=' . $data->intent; 
 	}
 
+	$sent_pushes = 0;
+
 	foreach($recipient_users_final as $user) {
 		\debugging('Attempt to send to user ' . $user->id . ' ' . $user->username . ' by AirNotifier', DEBUG_DEVELOPER);
 		if ($sender->send_message($user, $data)) {
 			\debugging('Successfully sent a push notification via AirNotifier', DEBUG_DEVELOPER);
+			++$sent_pushes;
 		}
 		else {
 			throw new \Exception('The call to send the AirNotifier message did not succeed.');
@@ -155,7 +159,7 @@ if ($data = $form->get_data()) {
 }
 
 // create renderable
-$renderable = new \tool_pushcommunications\output\index_page();
+$renderable = new \tool_pushcommunications\output\index_page($result);
 
 echo $output->render($renderable);
 echo $output->footer();

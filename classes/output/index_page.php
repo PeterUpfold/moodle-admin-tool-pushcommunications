@@ -43,9 +43,15 @@ use stdClass;
 class index_page implements renderable, templatable {
 
 	/**
+	 * @var string The result of any push communication action.
+	 */
+	protected $result = "";
+
+	/**
 	 * The class constructor should receive any information that needs to be passed to the template at rendertime.
 	 */
-	public function __construct() {
+	public function __construct($result) {
+		$this->result = $result;
 	}
 
 	/**
@@ -65,6 +71,7 @@ class index_page implements renderable, templatable {
 		$form_populate_data['cohorts'] = \cohort_get_all_cohorts(0, 100, '');
 		$form = new \tool_pushcommunications\local\composepushcommunication_form(null, $form_populate_data, 'post');
 		$data->composepushcommunication_form = $form->render();
+		$data->result = $this->result;
 
 		return $data;
 	}
