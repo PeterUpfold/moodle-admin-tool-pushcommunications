@@ -45,3 +45,30 @@ $string['unable_to_find_user']              = 'Unable to find the target user by
 $string['send_message_failed']              = 'The call to AirNotifier to send the message did not succeed.';
 $string['no_capability']                    = 'The web service token provided is not associated with a user who has the appropriate capability.';
 $string['sent_pushes']                      = 'Sent push notifications to {$a} users.';
+
+/* CLI tool */
+$string['cli_send_help']                    = <<<EOF
+Send a push communication to individual users (by email address) or to a cohort or its parents.
+
+Usage:
+	# php admin/tool/pushcommunications/send.php --emails=email1@example.com,example2@example.com --message='Test message'
+	# php admin/tool/pushcommunications/send.php --cohorts='Cohort 1' --to-parents --message='Test message'
+
+Options:
+	-h, --help		Print this help.
+	--emails=<value>	Comma-separated email addresses to receive the push communication.
+	--cohorts=<value>	Comma-separated names of system-level cohorts to receive the push communications.
+					You may need to quote this argument if a cohort name contains spaces.
+	--message=<value>	The push communication content. You will likely need to quote this argument on your shell.
+	--url=<value>		Optional, Android only: URL within this Moodle site to navigate to 
+	-p, --to-parents	Send the communication to parents of the specified cohort, not the cohort members. (Cohorts only)
+EOF;
+
+$string['cli_no_users_selected']            = 'No users were selected to receive a communication.' . PHP_EOL . 'Please provide --emails=<value> or --cohorts=<value>, or pass --help for more info.';
+$string['cli_unable_to_find_user']          = 'WARNING: Unable to send to {$a} because a user account with this email address was not found.';
+$string['cli_no_message']                   = 'The \'message\' parameter must be supplied and should contain the content of the push communication.';
+$string['cli_exception_sending_to_user']    = '  => WARNING: Unable to send. Exception details: \'{$a}\'';
+$string['cli_sent_to_user']                 = 'Sent to \'{$a}\'.';
+$string['cli_unable_to_find_cohort']        = 'WARNING: Unable to find the cohort \'{$a}\'.';
+$string['cli_exception_on_cohort']          = '  => WARNING: Exception while processing this cohort. \'{$a}\'';
+$string['cli_no_users']                     = 'There were no users to whom the push communication should be sent.';

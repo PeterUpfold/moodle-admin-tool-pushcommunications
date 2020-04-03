@@ -71,14 +71,7 @@ class tool_pushcommunications_external extends external_api {
 		}
 
 		// look up user from email address
-		/*  note that login/lib.php:100 explains that the email address may not be unique. As that code does,
-		 *  we will naively ignore multiple, which I guess takes the first valid result and will send to that
-		 *  user only.
-		 */
-		$select = $DB->sql_like('email', ':email', false, true, false, '|') .
-			" AND mnethostid = :mnethostid AND deleted=0 AND suspended=0";
-		$select_params = array('email' => $DB->sql_like_escape($params['email'], '|'), 'mnethostid' => $CFG->mnet_localhost_id);
-		$user = $DB->get_record_select('user', $select, $select_params, '*', IGNORE_MULTIPLE);
+		$user = $sender->get_user_from_email_address($params['email']);
 
 		if (!$user) {
 			return [

@@ -122,4 +122,117 @@ class pushcommunication_sender {
 		$airnotifier_sender = new \message_output_airnotifier();
 		return $airnotifier_sender->send_message($eventdata);
 	}	
+
+	/**
+	 * Return a user record from email address. Note that the email address may not be unique,
+	 * and this will return the first user matched.
+	 *
+	 * @param string $email Email address.
+	 *
+	 * @return stdClass user
+	 */
+	public function get_user_from_email_address($email) {
+		global $DB, $CFG;
+		/*  note that login/lib.php:100 explains that the email address may not be unique. As that code does,
+		 *  we will naively ignore multiple, which I guess takes the first valid result and will send to that
+		 *  user only.
+		 */
+		$select = $DB->sql_like('email', ':email', false, true, false, '|') .
+			" AND mnethostid = :mnethostid AND deleted=0 AND suspended=0";
+		$select_params = array('email' => $DB->sql_like_escape($email, '|'), 'mnethostid' => $CFG->mnet_localhost_id);
+		$user = $DB->get_record_select('user', $select, $select_params, '*', IGNORE_MULTIPLE);
+		return $user;
+	}
+
+	/**
+	 * Format the intent properly as (for example) tvsmoodlemobile://?redirect=[original link]
+	 *
+	 * @param string $intent The original intent URL
+	 *
+	 * @return string Formatted intent URL with mobile scheme.
+	 */
+	public function format_intent($intent) {
+		// a bit of a hack -- determine the correct app URI scheme based on the last part of the android_app identifier from tool_mobile
+		$mobilesettings = \get_config('tool_mobile');
+		$appid = explode('.', $mobilesettings->androidappid);
+
+		return $appid[count($appid)-1] . '://?redirect=' . $intent; 
+	}
+
+	/**
+	 * Return each user in the target cohort.
+	 * System context cohorts only at this time.
+	 *
+	 * @param int $cohort_id Numeric identifier of the cohort.
+	 *
+	 * @return array List of user objects
+	 */
+	public function find_users_in_cohort($cohort_id) {
+		global $CFG;
+		require_once("$CFG->dirroot/cohort/locallib.php");
+
+		$context = \context_system::instance();
+		$selector = new \cohort_existing_selector('cohort-selector', [ 'cohortid' => $cohort_id, 'accesscontext' => $context ]);
+
+		$cohort_users = $selector->find_users('');
+
+		if (!is_array($cohort_users)) {
+			throw new \Exception('Failed to search the cohort for current users.');
+		}
+		if (!array_key_exists('Current users', $cohort_users)) {
+			throw new \Exception('Failed to identify any current users in the cohort.');
+		}
+
+		return $cohort_users['Current users'];
+	}
+
+	/**
+	 * For each user in the target cohort, find the users which have parent role in the context of that user.
+	 * System context cohorts only at this time.
+	 *
+	 * @param int $cohort_id Numeric identifier of cohort
+	 *
+	 * @return array List of user objects
+	 */
+	public function find_parent_users_in_cohort($cohort_id) {
+		global $CFG;
+
+		// look up 'magic' parent role ID
+		if (!property_exists($CFG, 'report_parentprogressview_parent_roleid')) {
+			throw new \Exception('The configuration settings for Parent Progress View could not be found. The report_parentprogressview module must be installed and the Parent Role ID configuration setting must be set in order to use cohort lookup.');
+		}
+		$roleid = (int)$CFG->report_parentprogressview_parent_roleid;
+		if ($roleid === 0) {
+			throw new \Exception('The configuration settings for Parent Progress View could not be evaluated correctly. The report_parentprogressview module must be installed and the Parent Role ID configuration setting must be set in order to use cohort lookup.');
+		}
+
+		$recipient_users = [];
+	
+		foreach($this->find_users_in_cohort($cohort_id) as $pupil) {
+			// find parents with the roleid attached to this pupil and add them to recipients
+			$user_context = \context_user::instance($pupil->id);
+			$role_users = \get_role_users($roleid, $user_context, false, 'u.id, u.username, ' . get_all_user_name_fields(true, 'u'));
+
+			// for each parent
+			foreach($role_users as $parent) {
+				$recipient_users[] = $parent;
+				\debugging('Add parent ' . $parent->username . ' to pupil ' . $pupil->id, DEBUG_DEVELOPER);
+			}
+		}
+		return $recipient_users;
+	}	
+
+	/**
+	 * Get a cohort object from its name.
+	 *
+	 * @param string $cohort_name The name of the cohort.
+	 *
+	 * @return stdClass cohort
+	 */
+	public function get_cohort_by_name($cohort_name) {
+		global $DB;
+
+		return $DB->get_record('cohort', [ 'name' => $cohort_name ]);
+	}
+
 };

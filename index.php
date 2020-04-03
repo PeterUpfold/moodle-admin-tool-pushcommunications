@@ -51,6 +51,8 @@ $form = new \tool_pushcommunications\local\composepushcommunication_form(null, $
 $result = '';
 
 if ($data = $form->get_data()) {
+	require_once(__DIR__ . '/classes/local/pushcommunication_sender.php');
+	$sender = new \tool_pushcommunications\local\pushcommunication_sender();
 
 	$recipient_users = []; // these Moodle user IDs will receive the push communication
 
@@ -69,40 +71,8 @@ if ($data = $form->get_data()) {
 			throw new \InvalidArgumentException('An invalid cohort ID was specified');
 		}
 
-		// look up 'magic' parent role ID
-		if (!property_exists($CFG, 'report_parentprogressview_parent_roleid')) {
-			throw new \Exception('The configuration settings for Parent Progress View could not be found. The report_parentprogressview module must be installed and the Parent Role ID configuration setting must be set in order to use cohort lookup.');
-		}
-		$roleid = (int)$CFG->report_parentprogressview_parent_roleid;
-		if ($roleid === 0) {
-			throw new \Exception('The configuration settings for Parent Progress View could not be evaluated correctly. The report_parentprogressview module must be installed and the Parent Role ID configuration setting must be set in order to use cohort lookup.');
-		}
-
-
 		// for each user in the target cohort, find the users which have parent role in the context of that user and add to recipient_users
-		require_once("$CFG->dirroot/cohort/locallib.php");
-		$selector = new \cohort_existing_selector('cohort-selector', [ 'cohortid' => $data->target_cohort, 'accesscontext' => $context ]);
-
-		$cohort_users = $selector->find_users('');
-
-		if (!is_array($cohort_users)) {
-			throw new \Exception('Failed to search the cohort for current users.');
-		}
-		if (!array_key_exists('Current users', $cohort_users)) {
-			throw new \Exception('Failed to identify any current users in the cohort.');
-		}
-
-		foreach($cohort_users['Current users'] as $pupil) {
-			// find parents with the roleid attached to this pupil and add them to recipients
-			$user_context = \context_user::instance($pupil->id);
-			$role_users = \get_role_users($roleid, $user_context, false, 'u.id, u.username, ' . get_all_user_name_fields(true, 'u'));
-
-			// for each parent
-			foreach($role_users as $parent) {
-				$recipient_users[] = $parent;
-				\debugging('Add parent ' . $parent->username . ' to pupil ' . $pupil->id, DEBUG_DEVELOPER);
-			}
-		}
+		$recipient_users = array_merge($recipient_users, $sender->find_parent_users_in_cohort($data->target_cohort));
 	}
 
 	// individual send
@@ -131,17 +101,12 @@ if ($data = $form->get_data()) {
 		}
 	}
 
-	require_once(__DIR__ . '/classes/local/pushcommunication_sender.php');
-	$sender = new \tool_pushcommunications\local\pushcommunication_sender();
+
 
 
 	// format the intent properly-- tvsmoodlemobile://?redirect=[original link]
 	if (!empty($data->intent)) {
-		// a bit of a hack -- determine the correct app URI scheme based on the last part of the android_app identifier from tool_mobile
-		$mobilesettings = \get_config('tool_mobile');
-		$appid = explode('.', $mobilesettings->androidappid);
-
-		$data->intent = $appid[count($appid)-1] . '://?redirect=' . $data->intent; 
+		$this->format_intent($data->intent);
 	}
 
 	$sent_pushes = 0;
